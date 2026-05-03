@@ -1,0 +1,58 @@
+# .gitleaks.toml
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "zwingen project allowlist"
+paths = [
+  '''^docs/.*\.md$''',
+  '''^examples/.*\.ipynb$''',
+  '''^tests/reproducibility/fixtures/.*\.json$''',
+  '''^benchmarks/.*\.json$''',
+  '''^stubs/.*\.pyi$''',
+  '''^uv\.lock$''',
+  '''^\.zenodo\.json$''',
+  '''^CITATION\.cff$''',
+]
+regexes = [
+  '''sha256:[0-9a-f]{64}''',
+  '''sha512:[0-9a-f]{128}''',
+  '''0\.5281/zenodo\.[0-9]+''',
+  '''@(olaflaitinen|olaf\.laitinen)''',
+  '''olaf\.laitinen@gmail\.com''',
+]
+stopwords = [
+  "example",
+  "placeholder",
+  "dummy",
+  "fake",
+  "sample",
+  "fixture",
+]
+
+[[rules]]
+id = "zwingen-pypi-trusted-publisher-token"
+description = "Catch accidental commits of PyPI Trusted Publisher OIDC tokens."
+regex = '''pypi-AgEIc[A-Za-z0-9_-]{50,}'''
+tags = ["pypi", "token"]
+
+[[rules]]
+id = "zwingen-sigstore-private-key"
+description = "Catch ed25519 / ecdsa private keys that should never enter the repo."
+regex = '''-----BEGIN (RSA |EC |OPENSSH |)PRIVATE KEY-----'''
+tags = ["sigstore", "key"]
+
+[[rules]]
+id = "zwingen-readthedocs-token"
+description = "Catch leaked Read the Docs API tokens."
+regex = '''rtd_[A-Za-z0-9]{40,}'''
+tags = ["readthedocs", "token"]
+
+[[rules]]
+id = "zwingen-zenodo-token"
+description = "Catch leaked Zenodo deposition tokens."
+regex = '''zenodo_[A-Za-z0-9]{40,}'''
+tags = ["zenodo", "token"]
