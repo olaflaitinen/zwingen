@@ -74,7 +74,7 @@ jobs:
           path: .
 
       - name: Wait for publish workflow artefacts
-        uses: lewagon/wait-on-check-action@v1.3.4
+        uses: lewagon/wait-on-check-action@v1.7.0
         with:
           ref: $ github.sha
           check-name: "publish to PyPI"
