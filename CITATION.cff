@@ -1,0 +1,57 @@
+# CITATION.cff
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+# Reference: https://citation-file-format.github.io/
+
+cff-version: 1.2.0
+message: "If you use zwingen in academic work, please cite both the software and the accompanying methodological note."
+title: "zwingen: Compositional, reproducible numerical primitives for empirical research"
+abstract: >-
+  zwingen provides a compositional layer of differentiable numerical
+  primitives with bitwise reproducibility receipts. It targets empirical
+  economists, statisticians, and scientific software engineers who need
+  verifiable numerical contracts on top of JAX, optax, and numpyro.
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/olaflaitinen/zwingen"
+url: "https://zwingen.dev"
+version: 0.1.0
+date-released: "2026-05-03"
+keywords:
+  - reproducibility
+  - numerical-methods
+  - econometrics
+  - jax
+  - optax
+  - numpyro
+  - bayesian-inference
+  - scientific-computing
+authors:
+  - family-names: Laitinen
+    given-names: Olaf
+    email: olaf.laitinen@gmail.com
+    affiliation: "Department of Economics, Stockholm University"
+    orcid: "https://orcid.org/0000-0002-1825-0097"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.0000000
+    description: "Concept DOI for all versions of zwingen."
+  - type: url
+    value: "https://pypi.org/project/zwingen/"
+    description: "PyPI distribution."
+  - type: url
+    value: "https://docs.zwingen.dev"
+    description: "Project documentation."
+preferred-citation:
+  type: software
+  title: "zwingen: Compositional, reproducible numerical primitives for empirical research"
+  authors:
+    - family-names: Laitinen
+      given-names: Olaf
+      email: olaf.laitinen@gmail.com
+      affiliation: "Department of Economics, Stockholm University"
+      orcid: "https://orcid.org/0000-0002-1825-0097"
+  year: 2026
+  version: 0.1.0
+  url: "https://github.com/olaflaitinen/zwingen"
+  license: Apache-2.0

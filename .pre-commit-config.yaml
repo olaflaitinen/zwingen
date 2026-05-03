@@ -1,0 +1,86 @@
+# .pre-commit-config.yaml
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+
+default_language_version:
+  python: python3.12
+
+default_stages: [pre-commit]
+
+fail_fast: false
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - numpy>=1.26
+          - typing-extensions>=4.10
+        args: [--config-file=pyproject.toml]
+        files: ^(src|tools)/
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.376
+    hooks:
+      - id: pyright
+        args: [--project, pyproject.toml]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [--strict]
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.29.1
+    hooks:
+      - id: check-github-workflows
+      - id: check-readthedocs
+      - id: check-renovate
+
+  - repo: local
+    hooks:
+      - id: lint-no-emoji
+        name: zwingen style guard - emoji ban
+        entry: python tools/lint_no_emoji.py
+        language: system
+        files: ^(README\.md|docs/.*\.md|src/zwingen/.*\.py)$
+        pass_filenames: true
+      - id: check-dashes
+        name: zwingen style guard - em/en-dash ban
+        entry: python tools/check_dashes.py
+        language: system
+        files: ^(README\.md|docs/.*\.md|src/zwingen/.*\.py)$
+        pass_filenames: true

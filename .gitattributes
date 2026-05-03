@@ -1,0 +1,56 @@
+# .gitattributes
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+
+* text=auto eol=lf
+
+# Source
+*.py    text eol=lf diff=python
+*.pyi   text eol=lf diff=python
+*.pyx   text eol=lf diff=python
+
+# Configuration
+*.toml  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.json  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+
+# Documentation
+*.md    text eol=lf
+*.rst   text eol=lf
+
+# Shell / CI
+*.sh    text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
+
+# Binary assets (never normalize)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text eol=lf
+*.pdf   binary
+*.parquet binary
+*.npz   binary
+*.npy   binary
+*.h5    binary
+*.hdf5  binary
+
+# Linguist (GitHub language stats)
+docs/**           linguist-documentation
+stubs/**          linguist-vendored
+benchmarks/**     linguist-vendored=false
+examples/**       linguist-documentation=false
+tools/**          linguist-vendored=false
+CHANGELOG.md      linguist-generated
+
+# Reproducibility receipts: stable JSON sort, never auto-merged
+tests/reproducibility/fixtures/*.json text eol=lf merge=ours
+
+# Lockfiles: never merge automatically
+uv.lock     merge=ours
+.pre-commit-config.yaml merge=union

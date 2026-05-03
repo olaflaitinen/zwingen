@@ -1,0 +1,72 @@
+target-version = "py310"
+line-length = 99
+src = ["src", "tests"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # ruff-specific
+    "D",      # pydocstyle
+    "ANN",    # flake8-annotations
+    "S",      # flake8-bandit
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "RSE",    # flake8-raise
+    "RET",    # flake8-return
+    "TID",    # flake8-tidy-imports
+    "ARG",    # flake8-unused-arguments
+    "PD",     # pandas-vet
+    "PGH",    # pygrep-hooks
+    "PL",     # pylint
+    "TRY",    # tryceratops
+    "FLY",    # flynt
+    "PERF",   # perflint
+    "LOG",    # flake8-logging
+]
+ignore = [
+    "D100",    # missing docstring in public module (handled per-file)
+    "D104",    # missing docstring in public package
+    "D105",    # missing docstring in magic method
+    "D107",    # missing docstring in __init__
+    "ANN101",  # missing type annotation for self
+    "ANN102",  # missing type annotation for cls
+    "ANN401",  # dynamically typed expressions (Any) - controlled use allowed
+    "S101",    # assert usage - allowed in tests
+    "TRY003",  # long exception messages
+    "PLR0913", # too many arguments - mathematical functions need them
+    "D203",    # conflicts with D211
+    "D213",    # conflicts with D212
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = [
+    "D",       # no docstring enforcement in tests
+    "ANN",     # no annotation enforcement in tests
+    "S101",    # assert is fine in tests
+    "PLR2004", # magic values fine in tests
+    "ARG",     # unused arguments fine in fixtures
+]
+"src/zwingen/cli.py" = ["T20"]  # print is allowed in CLI
+"src/zwingen/experimental/**/*.py" = ["ANN401"]
+
+[lint.isort]
+known-first-party = ["zwingen"]
+required-imports = ["from __future__ import annotations"]
+
+[lint.pydocstyle]
+convention = "numpy"

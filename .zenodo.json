@@ -1,0 +1,55 @@
+{
+  "title": "zwingen: Compositional, reproducible numerical primitives for empirical research",
+  "description": "zwingen provides a compositional layer of differentiable numerical primitives with bitwise reproducibility receipts. It targets empirical economists, statisticians, and scientific software engineers who need verifiable numerical contracts on top of JAX, optax, and numpyro.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "keywords": [
+    "reproducibility",
+    "numerical-methods",
+    "econometrics",
+    "jax",
+    "optax",
+    "numpyro",
+    "bayesian-inference",
+    "scientific-computing",
+    "open-source"
+  ],
+  "creators": [
+    {
+      "name": "Laitinen, Olaf",
+      "affiliation": "Department of Economics, Stockholm University",
+      "orcid": "0000-0002-1825-0097"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "zwingen contributors",
+      "type": "Other",
+      "affiliation": "https://github.com/olaflaitinen/zwingen/graphs/contributors"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/olaflaitinen/zwingen",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://docs.zwingen.dev",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-softwaredocumentation"
+    },
+    {
+      "identifier": "https://pypi.org/project/zwingen/",
+      "relation": "isIdenticalTo",
+      "resource_type": "software"
+    }
+  ],
+  "communities": [
+    { "identifier": "reproducible-research" },
+    { "identifier": "jax" }
+  ],
+  "language": "eng",
+  "notes": "Long-term archival is provided by Zenodo. Each GitHub release mints a new versioned DOI; the concept DOI always resolves to the latest release."
+}

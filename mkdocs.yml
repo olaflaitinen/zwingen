@@ -1,0 +1,172 @@
+# mkdocs.yml
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+
+site_name: zwingen
+site_description: Compositional, reproducible numerical primitives for empirical research.
+site_author: Olaf Laitinen
+site_url: https://docs.zwingen.dev
+
+repo_name: olaflaitinen/zwingen
+repo_url: https://github.com/olaflaitinen/zwingen
+edit_uri: edit/main/docs/
+
+copyright: Copyright 2026 Olaf Laitinen and the zwingen contributors. Apache-2.0.
+
+strict: true
+
+theme:
+  name: material
+  language: en
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang: en
+  - autorefs
+  - section-index
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: numpy
+            show_source: true
+            show_signature_annotations: true
+            separate_signature: true
+            merge_init_into_class: true
+            show_root_heading: true
+            show_if_no_docstring: false
+            inherited_members: true
+            members_order: source
+            heading_level: 2
+            line_length: 100
+            preload_modules:
+              - jax
+              - optax
+              - numpyro
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
+            - https://docs.scipy.org/doc/scipy/objects.inv
+            - https://jax.readthedocs.io/en/latest/objects.inv
+            - https://optax.readthedocs.io/en/latest/objects.inv
+            - https://num.pyro.ai/en/stable/objects.inv
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:pymdownx.emoji.gemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_alt
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - docs
+        - .
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/olaflaitinen/zwingen
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/zwingen/
+    - icon: fontawesome/solid/book
+      link: https://zwingen.readthedocs.io
+  version:
+    provider: mike
+    default: stable
+  generator: false
+  consent:
+    title: Cookie consent
+    description: This site uses analytics cookies only with your consent.
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Tutorials: tutorials/
+  - How-to: how-to/
+  - Reference: reference/
+  - Explanation: explanation/
+  - Changelog: changelog.md
+  - Governance: governance.md

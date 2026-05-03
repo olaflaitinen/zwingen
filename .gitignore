@@ -1,0 +1,102 @@
+# .gitignore
+# Maintainer: @olaflaitinen <olaf.laitinen@gmail.com>
+# License: Apache-2.0
+
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+wheelhouse/
+*.egg
+*.egg-info/
+.eggs/
+MANIFEST
+pip-wheel-metadata/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+.hypothesis/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.pyright/
+
+# Linters
+.ruff_cache/
+
+# Environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.uv/
+
+# Documentation builds
+site/
+docs/_build/
+docs/api/.cache/
+
+# Benchmarks
+.asv/
+.benchmarks/
+results/
+
+# Reproducibility receipts (local runs)
+receipts/local/
+*.receipt.local.json
+
+# Editors and IDEs
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# JAX / Compiler caches
+.jax_cache/
+.cache/jax/
+
+# Sigstore / SLSA artefacts (build only)
+*.sigstore
+*.intoto.jsonl
+*.crt
+*.key
+
+# Local secrets (must never be committed)
+*.pem
+secrets/
