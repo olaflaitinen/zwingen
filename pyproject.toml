@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [
-	{ name = "Gustav Olaf Yunus Laitinen-Fredriksson Lundström-Imanov", email = "gustav.laitinenfredriksson@gmail.com" },
+	{ name = "Gustav Olaf Yunus Laitinen-Fredriksson Lundström-Imanov", email = "olaf.laitinen@gmail.com" },
 ]
 maintainers = [
 	{ name = "Gustav Olaf Yunus Laitinen-Fredriksson Lundström-Imanov" },
