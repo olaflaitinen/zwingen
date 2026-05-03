@@ -1,0 +1,139 @@
+# .github/ISSUE_TEMPLATE/numerical_regression.yml
+name: "Numerical regression"
+description: "A previously-passing numerical baseline now fails or drifts."
+title: "[Numerical]: "
+labels: ["bug", "numerical-regression", "needs-triage"]
+assignees: ["olaflaitinen"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        zwingen treats regressions in numerical tolerances as **breaking
+        changes**. Please give the maintainers everything needed to reproduce
+        and bisect the regression.
+
+        Before opening this issue:
+        1. Confirm the regression on a clean environment (`uv venv && uv sync`).
+        2. Check `docs/reference/tolerances.md` for the expected threshold.
+        3. Try to bisect against tags between the last good and first bad
+           release using `pip install zwingen==X.Y.Z`.
+
+  - type: input
+    id: estimator
+    attributes:
+      label: Estimator or primitive
+      description: "Fully-qualified name, e.g. `zwingen.models.KernelRidge`."
+      placeholder: "zwingen.uq.SplitConformal"
+    validations:
+      required: true
+
+  - type: input
+    id: tolerance-key
+    attributes:
+      label: Tolerance key
+      description: "As listed in `docs/reference/tolerances.md`."
+      placeholder: "split_conformal.coverage_gap"
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: Expected tolerance
+      placeholder: "<= 1.5e-2 absolute on a 5000-sample synthetic regime"
+    validations:
+      required: true
+
+  - type: input
+    id: observed
+    attributes:
+      label: Observed value
+      placeholder: "3.7e-2 (mean over 50 seeds, 95% CI [3.4e-2, 4.0e-2])"
+    validations:
+      required: true
+
+  - type: input
+    id: last-good
+    attributes:
+      label: Last good zwingen version
+      placeholder: "0.1.3"
+    validations:
+      required: true
+
+  - type: input
+    id: first-bad
+    attributes:
+      label: First bad zwingen version
+      placeholder: "0.1.4"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "CPython 3.12.4"
+    validations:
+      required: true
+
+  - type: input
+    id: jax-version
+    attributes:
+      label: JAX version
+      placeholder: "0.4.34"
+
+  - type: dropdown
+    id: hardware-class
+    attributes:
+      label: Hardware class
+      options:
+        - CPU x86-64 (AVX-512)
+        - CPU x86-64 (AVX2 only)
+        - CPU aarch64
+        - GPU NVIDIA (sm_80+)
+        - GPU NVIDIA (sm_70 / sm_75)
+        - GPU AMD (gfx9 / gfx10)
+        - TPU v3 / v4 / v5
+        - Apple Silicon (Metal)
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: |
+        Self-contained snippet that reproduces the regression deterministically.
+        Use `zw.random.key(0)` and a fixed dataset hash where possible.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: receipt-good
+    attributes:
+      label: Receipt JSON for last good version
+      render: json
+
+  - type: textarea
+    id: receipt-bad
+    attributes:
+      label: Receipt JSON for first bad version
+      render: json
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional notes
+      description: "Anything that helps localise the regression (suspected commit, BLAS, env variables)."
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow the project's Code of Conduct.
+          required: true

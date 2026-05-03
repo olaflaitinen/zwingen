@@ -1,0 +1,64 @@
+# .github/workflows/codeql.yml
+name: codeql
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  pull_request:
+    branches: ["main", "release/**"]
+  schedule:
+    - cron: "31 3 * * 2"   # weekly, Tuesdays 03:31 UTC
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+concurrency:
+  group: codeql-$ github.ref
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: "analyze ($ matrix.language )"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python", "actions"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: $ matrix.language
+          queries: "security-and-quality,security-extended"
+          config: |
+            paths:
+              - src
+              - scripts
+              - tools
+              - .github/workflows
+            paths-ignore:
+              - tests/**
+              - benchmarks/**
+              - examples/**
+              - docs/**
+            packs:
+              - codeql/python-queries
+
+      - name: Autobuild
+        if: matrix.language == 'python'
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:$ matrix.language "
+          upload: true

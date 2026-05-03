@@ -1,0 +1,131 @@
+# .github/dependabot.yml
+# Dependabot configuration for the zwingen monorepo.
+#
+# Reference:
+#   https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # Python (pip) dependencies declared in pyproject.toml / uv.lock
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Stockholm"
+    open-pull-requests-limit: 10
+    versioning-strategy: "increase-if-necessary"
+    labels:
+      - "dependencies"
+      - "python"
+    reviewers:
+      - "olaflaitinen"
+    assignees:
+      - "olaflaitinen"
+    commit-message:
+      prefix: "deps(python)"
+      prefix-development: "deps(python-dev)"
+      include: "scope"
+    groups:
+      jax-stack:
+        patterns:
+          - "jax"
+          - "jaxlib"
+          - "optax"
+          - "numpyro"
+      scientific-core:
+        patterns:
+          - "numpy"
+          - "scipy"
+          - "networkx"
+          - "pydantic"
+          - "typing-extensions"
+      torch-extras:
+        patterns:
+          - "torch"
+          - "torchvision"
+          - "torchaudio"
+      dev-toolchain:
+        patterns:
+          - "pytest*"
+          - "hypothesis"
+          - "mypy"
+          - "ruff"
+          - "pyright"
+          - "asv"
+          - "pre-commit"
+      provenance:
+        patterns:
+          - "sigstore"
+          - "in-toto"
+          - "slsa-*"
+    ignore:
+      # Hold JAX major bumps until our XLA matrix in benchmarks is verified.
+      - dependency-name: "jax"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jaxlib"
+        update-types: ["version-update:semver-major"]
+
+  # ---------------------------------------------------------------------------
+  # GitHub Actions (workflows under .github/workflows/)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Stockholm"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "olaflaitinen"
+    commit-message:
+      prefix: "ci(actions)"
+      include: "scope"
+    groups:
+      actions-core:
+        patterns:
+          - "actions/*"
+          - "github/*"
+      release-tooling:
+        patterns:
+          - "sigstore/*"
+          - "slsa-framework/*"
+          - "pypa/*"
+          - "softprops/*"
+
+  # ---------------------------------------------------------------------------
+  # Docs requirements (Read the Docs / MkDocs)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/docs"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docs"
+    commit-message:
+      prefix: "docs(deps)"
+      include: "scope"
+
+  # ---------------------------------------------------------------------------
+  # Container images used in CI runners (if any Dockerfiles are added later)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "deps(docker)"
+      include: "scope"

@@ -1,0 +1,80 @@
+# .github/workflows/gitleaks.yml
+name: gitleaks
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  pull_request:
+    branches: ["main", "release/**"]
+  schedule:
+    - cron: "7 2 * * *"   # daily 02:07 UTC full-history scan
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+
+concurrency:
+  group: gitleaks-$ github.ref
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: gitleaks scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: $ secrets.GITHUB_TOKEN
+          GITLEAKS_LICENSE: $ secrets.GITLEAKS_LICENSE
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+          GITLEAKS_ENABLE_SUMMARY: "true"
+          GITLEAKS_CONFIG: ""
+          GITLEAKS_VERSION: "latest"
+        with:
+          config-path: .gitleaks.toml
+
+      - name: Upload SARIF results to code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          category: gitleaks
+
+  # ---------------------------------------------------------------------------
+  # Full-history scan on a schedule, separated so we never block on it
+  # ---------------------------------------------------------------------------
+  full-history:
+    name: gitleaks full-history (advisory)
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_8.18.4_linux_x64.tar.gz \
+            | tar -xz -C /usr/local/bin gitleaks
+
+      - name: Scan full history
+        run: gitleaks detect --source . --no-banner --redact --report-format sarif --report-path full-history.sarif --log-opts="--all"
+
+      - name: Upload full-history report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-full-history-sarif
+          path: full-history.sarif
+          if-no-files-found: warn

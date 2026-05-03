@@ -1,0 +1,116 @@
+# .github/DISCUSSION_TEMPLATE/question.yml
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for asking a question about zwingen.
+
+        Before posting, please:
+        1. Search existing discussions and issues for a similar question.
+        2. Check the docs at https://zwingen.readthedocs.io and the FAQ at https://docs.zwingen.dev/faq.
+        3. Read `docs/theory/overview.md` if your question is about a mathematical guarantee.
+
+        If you suspect a bug or a numerical regression, open an issue with the
+        corresponding template instead of a discussion.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which subsystem is your question about?
+      options:
+        - Installation / packaging (pip, uv, conda-forge, Pixi)
+        - Core / arrays / PRNG / devices
+        - Math (linalg, calculus, measure)
+        - Stats (distributions, divergences, tests)
+        - Models (kernel ridge, GLM, trees, mixtures)
+        - Bayes (NUTS, VI, flows, diagnostics)
+        - Causal (do-calculus, AIPW, TMLE, double ML, discovery)
+        - Geometry (manifolds, optimal transport, information geometry)
+        - Neural (layers, attention, ODE/SDE, sharding)
+        - Uncertainty (conformal, PAC-Bayes, calibration)
+        - Pipeline / cross-validation / HPO
+        - Serving (ONNX, TorchScript, StableHLO, FastAPI)
+        - Epistemic (assumptions, receipts, replay, provenance)
+        - Experimental (CPython 3.14 / 3.15, free-threaded, JIT)
+        - Documentation / tutorials
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What is your question?
+      description: |
+        State the question precisely. Include the mathematical or statistical
+        intent if it is relevant (for example, "I want to estimate a CATE
+        under unmeasured confounding").
+      placeholder: |
+        How do I combine a posterior from `zwingen.bayes.MeanField` with a
+        split conformal interval in `zwingen.uq` so that I get a hybrid
+        Bayesian-conformal coverage guarantee?
+    validations:
+      required: true
+
+  - type: textarea
+    id: minimal-example
+    attributes:
+      label: Minimal reproducible example (optional but encouraged)
+      description: |
+        A short, self-contained snippet that demonstrates the situation. Use
+        synthetic data if possible. Please include `import zwingen as zw` and
+        the version printed by `zw.__version__`.
+      render: python
+      placeholder: |
+        import zwingen as zw
+        rng = zw.random.key(0)
+        # ...
+
+  - type: input
+    id: zwingen-version
+    attributes:
+      label: zwingen version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.12.4 (CPython, GIL)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend
+      options:
+        - JAX (default)
+        - NumPy fallback
+        - PyTorch interop
+        - Experimental free-threaded
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: |
+        Anything else that might help: domain (economics, healthcare, vision),
+        sample size, hardware, or links to relevant theory.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow the project's Code of Conduct.
+          required: true
+        - label: I have searched existing discussions and issues for this question.
+          required: true

@@ -1,0 +1,93 @@
+# .github/workflows/free-threaded.yml
+name: free-threaded (advisory)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    paths:
+      - "src/zwingen/experimental/**"
+      - "src/zwingen/core/**"
+      - "src/zwingen/math/**"
+      - "src/zwingen/random/**"
+      - ".github/workflows/free-threaded.yml"
+  schedule:
+    - cron: "43 5 * * 3"   # weekly, Wednesdays 05:43 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: free-threaded-$ github.ref
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: "py$ matrix.python  on $ matrix.os "
+    runs-on: $ matrix.os
+    continue-on-error: true   # Advisory only.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        python: ["3.13t", "3.14t", "3.15t"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install free-threaded CPython $ matrix.python
+        run: |
+          uv python install $ matrix.python
+          uv venv --python $ matrix.python  .venv-ft
+
+      - name: Show interpreter info
+        run: |
+          source .venv-ft/bin/activate
+          python -VV
+          python -c "import sys; print('GIL disabled:', sys._is_gil_enabled() == False)"
+
+      - name: Install zwingen with experimental extras
+        run: |
+          source .venv-ft/bin/activate
+          uv pip install -e ".[experimental,dev]"
+
+      - name: Run experimental test suite
+        env:
+          ZWINGEN_FREE_THREADED: "1"
+          PYTHONFAULTHANDLER: "1"
+        run: |
+          source .venv-ft/bin/activate
+          pytest tests/ -q -k "not slow and not gpu" --maxfail=10 || true
+
+      - name: Profile JIT specialisation rate
+        if: matrix.python != '3.13t'
+        run: |
+          source .venv-ft/bin/activate
+          python scripts/profile_jit.py --iterations 200 --json > jit-profile.json || true
+          cat jit-profile.json || true
+
+      - name: Upload JIT profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jit-profile-$ matrix.python -$ matrix.os
+          path: jit-profile.json
+          if-no-files-found: ignore
+
+  summary:
+    name: advisory summary
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "This workflow is advisory and never blocks releases."
+          echo "Failures here indicate that the experimental free-threaded path"
+          echo "may need additional work, but ABI and performance contracts are"
+          echo "explicitly relaxed on these interpreters (see docs/api/experimental.md)."

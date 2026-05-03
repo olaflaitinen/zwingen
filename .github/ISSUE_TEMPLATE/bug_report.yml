@@ -1,0 +1,164 @@
+# .github/ISSUE_TEMPLATE/bug_report.yml
+name: "Bug report"
+description: "Report a defect in zwingen with a reproducible example."
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: ["olaflaitinen"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please complete every section so that the
+        maintainers can reproduce, classify, and fix the defect quickly.
+
+        If your report is about a numerical regression (e.g. a tolerance that
+        used to pass and now fails), use the **Numerical regression** template
+        instead, which has a more precise schema for tolerances and rates.
+
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Pre-flight checks
+      options:
+        - label: I have searched existing issues for this defect.
+          required: true
+        - label: I am running a supported zwingen release (see `pyproject.toml`).
+          required: true
+        - label: I can reproduce this on the latest patch of my minor version.
+          required: true
+
+  - type: input
+    id: zwingen-version
+    attributes:
+      label: zwingen version
+      description: "Output of `python -c 'import zwingen as zw; print(zw.__version__)'`"
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: "Output of `python -VV`"
+      placeholder: "Python 3.12.4 (main, ...)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: interpreter
+    attributes:
+      label: Interpreter mode
+      options:
+        - CPython, GIL (stable)
+        - CPython, free-threaded (3.13t / 3.14t / 3.15t, experimental)
+        - PyPy (best-effort)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux x86-64
+        - Linux aarch64
+        - macOS x86-64 (Intel)
+        - macOS arm64 (Apple Silicon)
+        - Windows x86-64
+        - Other (please specify in "Additional context")
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Numerical backend
+      options:
+        - JAX, CPU
+        - JAX, NVIDIA CUDA
+        - JAX, AMD ROCm
+        - JAX, Google TPU
+        - NumPy fallback
+        - PyTorch interop
+        - Experimental free-threaded path
+    validations:
+      required: true
+
+  - type: textarea
+    id: runtime-info
+    attributes:
+      label: Output of `zw doctor`
+      description: "Paste the full output of `zw doctor`. Redact only personal data."
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: "Describe the observed behaviour and what you expected."
+      placeholder: |
+        Calling `KernelRidge(kernel=Matern(nu=2.5)).fit(X, y)` on a
+        2000x20 SPD-shaped input raises `LinAlgError: condition number
+        1.3e+13 exceeds threshold 1e+12`, but the same input worked
+        on 0.0.9.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducible example
+      description: |
+        Self-contained, runs in under a minute. Use synthetic data when
+        possible. Set `zw.random.key(0)` for determinism.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Reproducibility receipt (if available)
+      description: |
+        If you ran with `zw.epistemic.record(...)`, paste the receipt JSON
+        here. The maintainers can replay it offline with
+        `zw.epistemic.replay(receipt)`.
+      render: json
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Full traceback
+      description: "Paste the complete traceback, not just the last line."
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "Critical: silent wrong result, miscoverage, or data corruption"
+        - "High: crash or unrecoverable error in supported configuration"
+        - "Medium: incorrect behaviour with a workaround"
+        - "Low: cosmetic / docs / typing issue"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: "Logs, screenshots, links to related issues or PRs."
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow the project's Code of Conduct.
+          required: true

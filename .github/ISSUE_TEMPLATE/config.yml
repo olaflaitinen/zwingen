@@ -1,0 +1,30 @@
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false
+contact_links:
+  - name: "Question or usage help"
+    url: "https://github.com/olaflaitinen/zwingen/discussions/new?category=q-a"
+    about: "Open a Q&A discussion. Issues are reserved for actionable bug reports, feature requests, numerical regressions, and documentation defects."
+
+  - name: "Design proposal (pre-RFC)"
+    url: "https://github.com/olaflaitinen/zwingen/discussions/new?category=design-proposals"
+    about: "Float a design idea in Discussions before writing a formal RFC."
+
+  - name: "Documentation site"
+    url: "https://zwingen.readthedocs.io"
+    about: "Search the versioned documentation, tutorials, and API reference."
+
+  - name: "Security advisory (private)"
+    url: "https://github.com/olaflaitinen/zwingen/security/advisories/new"
+    about: "Report a security vulnerability privately. Do NOT open a public issue."
+
+  - name: "Security disclosures"
+    url: "mailto:security@zwingen.dev"
+    about: "Email the maintainers. PGP key fingerprint published in SECURITY.md."
+
+  - name: "Academic collaboration"
+    url: "mailto:gustav.laitinenfredriksson@gmail.com"
+    about: "Joint papers, replication studies, and research-grant collaborations."
+
+  - name: "Citation"
+    url: "https://github.com/olaflaitinen/zwingen/blob/main/CITATION.cff"
+    about: "How to cite zwingen in academic work (CITATION.cff and Zenodo DOI)."

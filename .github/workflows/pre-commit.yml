@@ -1,0 +1,58 @@
+# .github/workflows/pre-commit.yml
+name: pre-commit
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  pull_request:
+    branches: ["main", "release/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre-commit-$ github.ref
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    name: run pre-commit hooks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-$ runner.os -$ hashFiles('.pre-commit-config.yaml')
+          restore-keys: |
+            pre-commit-$ runner.os -
+
+      - name: Install pre-commit
+        run: pip install pre-commit==3.7.1
+
+      - name: Show hook versions
+        run: pre-commit --version && pre-commit gc
+
+      - name: Run hooks against changed files (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          PRE_COMMIT_COLOR: always
+          BASE_SHA: $ github.event.pull_request.base.sha
+          HEAD_SHA: $ github.event.pull_request.head.sha
+        run: pre-commit run --from-ref "$BASE_SHA" --to-ref "$HEAD_SHA" --show-diff-on-failure
+
+      - name: Run hooks against the whole repo (push / dispatch)
+        if: github.event_name != 'pull_request'
+        env:
+          PRE_COMMIT_COLOR: always
+        run: pre-commit run --all-files --show-diff-on-failure

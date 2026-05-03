@@ -1,0 +1,63 @@
+# .github/workflows/stale.yml
+name: stale
+
+on:
+  schedule:
+    - cron: "23 1 * * *"   # daily 01:23 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: mark and close stale items
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: $ secrets.GITHUB_TOKEN
+          ascending: true
+          operations-per-run: 200
+          # ---------------- Issues ----------------
+          days-before-issue-stale: 60
+          days-before-issue-close: 21
+          stale-issue-label: "stale"
+          exempt-issue-labels: "pinned,security,bug,numerical-regression,rfc,documentation,help-wanted"
+          stale-issue-message: |
+            This issue has been automatically marked as **stale** because it
+            has not had any activity in the last 60 days. It will be closed
+            in 21 days unless new activity occurs.
+
+            If this issue is still relevant, please leave a comment so the
+            maintainers can re-triage it. Thank you for contributing to
+            zwingen!
+          close-issue-message: |
+            Closing this issue due to inactivity. If you believe this is a
+            mistake or the issue is still relevant, please leave a comment
+            and we will reopen it.
+          # ---------------- Pull requests ----------------
+          days-before-pr-stale: 30
+          days-before-pr-close: 14
+          stale-pr-label: "stale"
+          exempt-pr-labels: "pinned,security,blocked,review-needed,wip"
+          stale-pr-message: |
+            This pull request has been automatically marked as **stale**
+            because it has not had any activity in the last 30 days. It
+            will be closed in 14 days unless new activity occurs.
+
+            If you are still working on this PR, please push a commit, leave
+            a comment, or convert to draft. The maintainers will gladly help
+            unblock it.
+          close-pr-message: |
+            Closing this pull request due to inactivity. The branch and
+            commits remain available; you are welcome to reopen it or open
+            a fresh PR when you are ready to continue.
+          # ---------------- Behaviour ----------------
+          remove-stale-when-updated: true
+          delete-branch: false
+          enable-statistics: true
+          exempt-all-milestones: true
+          exempt-all-assignees: false

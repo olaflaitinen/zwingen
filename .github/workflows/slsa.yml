@@ -1,0 +1,89 @@
+# .github/workflows/slsa.yml
+name: slsa
+
+on:
+  workflow_run:
+    workflows: ["publish"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  attestations: write
+
+jobs:
+  collect-artifacts:
+    name: collect publish artefacts
+    if: $ github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      hashes: $ steps.hash.outputs.hashes
+    steps:
+      - name: Download dist-signed from publish run
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: publish.yml
+          run_id: $ github.event.workflow_run.id
+          name: dist-signed
+          path: dist
+          if_no_artifact_found: fail
+
+      - name: Compute SHA-256 hashes
+        id: hash
+        working-directory: dist
+        run: |
+          set -euo pipefail
+          HASHES=$(sha256sum *.whl *.tar.gz | base64 -w0)
+          echo "hashes=$HASHES" >> $GITHUB_OUTPUT
+
+      - name: Upload artefacts to next job
+        uses: actions/upload-artifact@v4
+        with:
+          name: slsa-inputs
+          path: dist/
+          if-no-files-found: error
+
+  provenance:
+    name: generate SLSA Level 3 provenance
+    needs: [collect-artifacts]
+    permissions:
+      id-token: write
+      contents: write
+      actions: read
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: "$ needs.collect-artifacts.outputs.hashes "
+      upload-assets: true
+      upload-tag-name: $ github.event.workflow_run.head_branch
+      provenance-name: "zwingen.intoto.jsonl"
+
+  verify:
+    name: verify provenance with slsa-verifier
+    needs: [provenance]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: slsa-inputs
+          path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: $ needs.provenance.outputs.provenance-name
+          path: provenance
+
+      - name: Install slsa-verifier
+        run: |
+          curl -sSLo slsa-verifier \
+            https://github.com/slsa-framework/slsa-verifier/releases/latest/download/slsa-verifier-linux-amd64
+          chmod +x slsa-verifier
+
+      - name: Verify each artefact
+        run: |
+          for f in dist/*.whl dist/*.tar.gz; do
+            ./slsa-verifier verify-artifact "$f" \
+              --provenance-path "provenance/zwingen.intoto.jsonl" \
+              --source-uri "github.com/$ github.repository " \
+              --source-tag "$ github.event.workflow_run.head_branch "
+          done

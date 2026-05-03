@@ -1,0 +1,148 @@
+# .github/workflows/benchmarks.yml
+name: benchmarks
+
+on:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "17 4 * * 1"   # weekly, Mondays 04:17 UTC
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to benchmark"
+        required: false
+        default: "main"
+      compare:
+        description: "Ref to compare against (e.g. previous tag)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # to push results to gh-pages
+  pull-requests: write
+
+concurrency:
+  group: benchmarks-$ github.ref
+  cancel-in-progress: false
+
+jobs:
+  cpu:
+    name: asv (CPU)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync
+        run: uv sync --all-extras --dev
+
+      - name: Configure asv
+        working-directory: benchmarks
+        run: |
+          uv run asv machine --yes
+          uv run asv check --python=python
+
+      - name: Run benchmarks
+        working-directory: benchmarks
+        env:
+          ZW_BENCH_PROFILE: ci-cpu
+        run: |
+          if [ -n "$ inputs.compare " ]; then
+            uv run asv continuous -e -f 1.10 $ inputs.compare  $ inputs.ref || github.ref
+          else
+            uv run asv run --skip-existing-successful HEAD
+          fi
+
+      - name: Publish HTML report
+        working-directory: benchmarks
+        run: uv run asv publish
+
+      - name: Deploy to gh-pages
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: $ secrets.GITHUB_TOKEN
+          publish_dir: benchmarks/html
+          destination_dir: benchmarks
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          commit_message: "docs(benchmarks): publish asv report $ github.sha "
+
+      - name: Upload raw results
+        uses: actions/upload-artifact@v4
+        with:
+          name: asv-results-cpu
+          path: benchmarks/results
+          if-no-files-found: error
+
+  gpu:
+    name: asv (GPU, self-hosted)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: [self-hosted, gpu, cuda12]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync with CUDA wheels
+        run: |
+          uv sync --all-extras --dev
+          uv pip install --upgrade "jax[cuda12]"
+
+      - name: Run GPU benchmarks
+        working-directory: benchmarks
+        env:
+          ZW_BENCH_PROFILE: ci-gpu
+          XLA_PYTHON_CLIENT_PREALLOCATE: "false"
+        run: |
+          uv run asv machine --yes
+          uv run asv run --skip-existing-successful HEAD
+          uv run asv publish
+
+      - name: Upload GPU results
+        uses: actions/upload-artifact@v4
+        with:
+          name: asv-results-gpu
+          path: benchmarks/results
+          if-no-files-found: error
+
+  comment-on-pr:
+    name: comment regression summary
+    if: github.event_name == 'workflow_dispatch' && inputs.compare != ''
+    needs: [cpu]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: asv-results-cpu
+          path: results
+
+      - name: Generate summary
+        run: |
+          ls -la results
+          echo "Benchmark comparison: $ inputs.compare  -> $ inputs.ref " > summary.md
+          echo "" >> summary.md
+          echo "See attached HTML report on gh-pages." >> summary.md
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event.pull_request != null
+        with:
+          path: summary.md

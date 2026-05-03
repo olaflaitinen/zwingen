@@ -1,0 +1,183 @@
+# .github/workflows/ci.yml
+name: ci
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  pull_request:
+    branches: ["main", "release/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-$ github.ref
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint, formatting, and static type-checking
+  # ---------------------------------------------------------------------------
+  lint:
+    name: lint and types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dev environment
+        run: uv sync --all-extras --dev
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: mypy strict
+        run: uv run mypy --strict src/ tests/
+
+      - name: pyright strict
+        run: uv run pyright --warnings
+
+      - name: Style guards (no emoji, no em/en dashes in public docs)
+        run: |
+          uv run python tools/lint_no_emoji.py
+          uv run python tools/check_dashes.py
+
+      - name: Verify pyproject metadata
+        run: uv run python -m build --sdist --wheel --outdir dist-check/
+
+  # ---------------------------------------------------------------------------
+  # Unit, property, contract, and numerical tests on the stable interpreter matrix
+  # ---------------------------------------------------------------------------
+  test:
+    name: "test py$ matrix.python  on $ matrix.os "
+    needs: [lint]
+    runs-on: $ matrix.os
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          # macOS 3.10 wheel for jaxlib is occasionally lagging; skip to keep CI
+          # green. Coverage is preserved by ubuntu + windows on 3.10.
+          - os: macos-latest
+            python: "3.10"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python $ matrix.python
+        uses: actions/setup-python@v5
+        with:
+          python-version: $ matrix.python
+
+      - name: Sync environment
+        run: uv sync --all-extras --dev
+
+      - name: Show runtime info
+        run: uv run python -c "import zwingen as zw; print(zw.runtime_info())"
+
+      - name: Run unit tests
+        run: uv run pytest tests/unit -q --maxfail=1 --durations=20
+
+      - name: Run property tests
+        run: uv run pytest tests/property -q --maxfail=1
+        env:
+          HYPOTHESIS_PROFILE: ci
+
+      - name: Run contract tests
+        run: uv run pytest tests/contracts -q --maxfail=1
+
+      - name: Run numerical regression tests
+        run: uv run pytest tests/numerical -q --maxfail=1 --durations=20
+
+      - name: Run reproducibility tests (bitwise replay)
+        if: matrix.os != 'windows-latest'
+        run: uv run pytest tests/reproducibility -q --maxfail=1
+
+      - name: Run integration tests
+        run: uv run pytest tests/integration -q --maxfail=1
+
+      - name: Coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        run: |
+          uv run coverage run -m pytest -q
+          uv run coverage xml -o coverage.xml
+
+      - name: Upload coverage artefact
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Build wheels for sanity (cibuildwheel runs the full matrix in publish.yml)
+  # ---------------------------------------------------------------------------
+  build:
+    name: build sdist + wheel
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist + wheel
+        run: uv run python -m build --sdist --wheel --outdir dist/
+
+      - name: Twine check
+        run: uv run python -m twine check dist/*
+
+      - name: Upload distribution artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Final aggregator job, used as a single required status check
+  # ---------------------------------------------------------------------------
+  ci-summary:
+    name: ci summary
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All required CI jobs succeeded."

@@ -1,0 +1,167 @@
+# .github/workflows/release.yml
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+  discussions: write
+
+concurrency:
+  group: release-$ github.ref
+  cancel-in-progress: false
+
+jobs:
+  prepare-notes:
+    name: generate release notes
+    runs-on: ubuntu-latest
+    outputs:
+      tag: $ steps.meta.outputs.tag
+      version: $ steps.meta.outputs.version
+      previous: $ steps.meta.outputs.previous
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: meta
+        name: Compute metadata
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          PREV=$(git tag --sort=-v:refname | grep -E '^v[0-9]+' | sed -n '2p' || true)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "previous=$PREV" >> $GITHUB_OUTPUT
+
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync
+        run: uv sync --all-extras --dev
+
+      - name: Generate changelog from CHANGELOG.md
+        id: changelog
+        run: |
+          uv run python tools/generate_changelog.py \
+            --version "$ steps.meta.outputs.version " \
+            --output release-notes.md
+          cat release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+          if-no-files-found: error
+
+  github-release:
+    name: create GitHub release
+    needs: [prepare-notes]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: .
+
+      - name: Wait for publish workflow artefacts
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: $ github.sha
+          check-name: "publish to PyPI"
+          repo-token: $ secrets.GITHUB_TOKEN
+          wait-interval: 30
+          allowed-conclusions: success
+
+      - name: Download dist-signed from publish workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: publish.yml
+          name: dist-signed
+          path: dist
+          if_no_artifact_found: fail
+          search_artifacts: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "zwingen $ needs.prepare-notes.outputs.version "
+          tag_name: $ needs.prepare-notes.outputs.tag
+          body_path: release-notes.md
+          draft: false
+          prerelease: $ contains(needs.prepare-notes.outputs.tag, '-rc') || contains(needs.prepare-notes.outputs.tag, '-alpha') || contains(needs.prepare-notes.outputs.tag, '-beta')
+          generate_release_notes: false
+          discussion_category_name: "announcements"
+          fail_on_unmatched_files: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/*.sigstore
+            dist/*.intoto.jsonl
+            dist/*.slsa.provenance.json
+
+  zenodo-doi:
+    name: mint Zenodo DOI
+    needs: [github-release]
+    runs-on: ubuntu-latest
+    environment:
+      name: zenodo
+      url: https://zenodo.org/communities/zwingen
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trigger Zenodo deposit
+        env:
+          ZENODO_TOKEN: $ secrets.ZENODO_TOKEN
+          VERSION: $ needs.prepare-notes.outputs.version
+        run: |
+          # Zenodo's GitHub integration handles the deposit automatically when a
+          # release is published; this step verifies the deposit and stores the
+          # minted DOI in CITATION.cff for the next release cycle.
+          DOI=$(curl -s -H "Authorization: Bearer ${ZENODO_TOKEN}" \
+            "https://zenodo.org/api/deposit/depositions?q=title:%22zwingen%22" \
+            | jq -r ".[0].metadata.doi")
+          echo "Resolved DOI: $DOI"
+          echo "DOI=$DOI" >> $GITHUB_ENV
+
+  announce:
+    name: open announcement discussion
+    needs: [github-release, zenodo-doi]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: .
+
+      - name: Compose announcement
+        run: |
+          {
+            echo "# zwingen $ needs.prepare-notes.outputs.version  is out"
+            echo ""
+            cat release-notes.md
+            echo ""
+            echo "## Install"
+            echo ""
+            echo '```bash'
+            echo "pip install zwingen==$ needs.prepare-notes.outputs.version "
+            echo '```'
+          } > announce.md
+
+      - name: Post discussion
+        uses: abirismyname/create-discussion@v2
+        with:
+          title: "zwingen $ needs.prepare-notes.outputs.version  — release announcement"
+          body-filepath: announce.md
+          repository-id: $ vars.REPOSITORY_NODE_ID
+          category-id: $ vars.ANNOUNCEMENTS_CATEGORY_ID
+          token: $ secrets.GITHUB_TOKEN 

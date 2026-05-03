@@ -1,0 +1,101 @@
+# .github/CODEOWNERS
+#
+# Each line is a file pattern followed by one or more owners.
+# These owners will be the default owners for everything in the repo
+# unless a later match takes precedence.
+#
+# Order matters: the LAST matching pattern takes the most precedence.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+# ---------------------------------------------------------------------------
+# Default owners for everything in the repo
+# ---------------------------------------------------------------------------
+*                                       @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Build, packaging, and release engineering
+# ---------------------------------------------------------------------------
+/pyproject.toml                         @olaflaitinen
+/uv.lock                                @olaflaitinen
+/Makefile                               @olaflaitinen
+/.github/workflows/                     @olaflaitinen
+/.github/workflows/publish.yml          @olaflaitinen
+/.github/workflows/release.yml          @olaflaitinen
+/.github/workflows/slsa.yml             @olaflaitinen
+/scripts/make_release.py                @olaflaitinen
+/scripts/verify_receipt.py              @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Documentation
+# ---------------------------------------------------------------------------
+/docs/                                  @olaflaitinen
+/docs/theory/                           @olaflaitinen
+/docs/tutorials/                        @olaflaitinen
+/docs/governance/                       @olaflaitinen
+/README.md                              @olaflaitinen
+/CHANGELOG.md                           @olaflaitinen
+/CITATION.cff                           @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Numerical core (math, stats, kernels)
+# ---------------------------------------------------------------------------
+/src/zwingen/core/                      @olaflaitinen
+/src/zwingen/math/                      @olaflaitinen
+/src/zwingen/stats/                     @olaflaitinen
+/src/zwingen/kernels/                   @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Estimator families
+# ---------------------------------------------------------------------------
+/src/zwingen/models/                    @olaflaitinen
+/src/zwingen/bayes/                     @olaflaitinen
+/src/zwingen/causal/                    @olaflaitinen
+/src/zwingen/geom/                      @olaflaitinen
+/src/zwingen/neural/                    @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Guarantees and orchestration
+# ---------------------------------------------------------------------------
+/src/zwingen/uq/                        @olaflaitinen
+/src/zwingen/formal/                    @olaflaitinen
+/src/zwingen/epistemic/                 @olaflaitinen
+/src/zwingen/pipeline/                  @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Deployment, monitoring, experimental
+# ---------------------------------------------------------------------------
+/src/zwingen/serve/                     @olaflaitinen
+/src/zwingen/monitor/                   @olaflaitinen
+/src/zwingen/experimental/              @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+/tests/                                 @olaflaitinen
+/tests/contracts/                       @olaflaitinen
+/tests/numerical/                       @olaflaitinen
+/tests/reproducibility/                 @olaflaitinen
+/tests/property/                        @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Benchmarks
+# ---------------------------------------------------------------------------
+/benchmarks/                            @olaflaitinen
+/benchmarks/registered/                 @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Security and provenance-sensitive files
+# ---------------------------------------------------------------------------
+/SECURITY.md                            @olaflaitinen
+/.github/workflows/codeql.yml           @olaflaitinen
+/.github/workflows/gitleaks.yml         @olaflaitinen
+/.zenodo.json                           @olaflaitinen
+
+# ---------------------------------------------------------------------------
+# Governance
+# ---------------------------------------------------------------------------
+/GOVERNANCE.md                          @olaflaitinen
+/CODE_OF_CONDUCT.md                     @olaflaitinen
+/CONTRIBUTING.md                        @olaflaitinen
+/MAINTAINERS.md                         @olaflaitinen
+/.github/CODEOWNERS                     @olaflaitinen

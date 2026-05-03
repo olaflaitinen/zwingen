@@ -1,0 +1,44 @@
+# .github/FUNDING.yml
+# These are supported funding model platforms. Lines that are commented out
+# are intentionally disabled; uncomment and fill in the username/handle to
+# enable the corresponding sponsor button on the repository page.
+#
+# Reference:
+#   https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+github: [olaflaitinen]
+
+# Open Collective collective slug, e.g. "zwingen".
+open_collective: zwingen
+
+# ko-fi username, e.g. "olaflaitinen".
+ko_fi: olaflaitinen
+
+# Tidelift package, formatted as <platform-name>/<package-name>.
+tidelift: pypi/zwingen
+
+# Community Bridge project name.
+# community_bridge:
+
+# Liberapay username.
+liberapay: zwingen
+
+# IssueHunt username.
+# issuehunt:
+
+# Buy Me a Coffee username.
+buy_me_a_coffee: olaflaitinen
+
+# Thanks.dev username.
+# thanks_dev:
+
+# Patreon username.
+# patreon:
+
+# Custom URLs (max 4). Use these for institutional pages, Zenodo donations,
+# or research-grant landing pages.
+custom:
+  - "https://zwingen.dev/sponsor"
+  - "https://www.su.se/english/department-of-economics/"
+  - "https://opencollective.com/zwingen/donate"
+  - "https://zenodo.org/communities/zwingen"

@@ -1,0 +1,81 @@
+# .github/ISSUE_TEMPLATE/documentation.yml
+name: "Documentation issue"
+description: "Report a defect in the docs, tutorials, or theorem cards."
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve zwingen's documentation. The docs site is
+        versioned at https://zwingen.readthedocs.io and the latest build is at
+        https://docs.zwingen.dev.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Documentation surface
+      options:
+        - API reference (`docs/api/`)
+        - Theory pages (`docs/theory/`)
+        - Tutorials (`docs/tutorials/`)
+        - Theorem cards (`docs/theory/formal/theorem-cards/`)
+        - Glossary / symbols (`docs/reference/`)
+        - Migration notes (`docs/migrations/`)
+        - Governance (`docs/governance/`)
+        - README / CHANGELOG / CITATION
+        - Docstrings (in `src/zwingen/`)
+        - Accessibility (WCAG 2.2 AA)
+        - Localisation (Turkish, Azerbaijani, Swedish, German)
+    validations:
+      required: true
+
+  - type: input
+    id: page-url
+    attributes:
+      label: Page URL
+      placeholder: "https://zwingen.readthedocs.io/en/0.1.0/api/uq.html#splitconformal"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing?
+      description: "Be specific. Quote the offending sentence or formula."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "Critical: incorrect mathematical statement"
+        - "High: missing guarantee, missing assumption, or wrong API signature"
+        - "Medium: typo, broken link, formatting bug"
+        - "Low: cosmetic / accessibility / localisation"
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested fix
+      description: "Optional but very welcome. A draft sentence or paragraph is ideal."
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Are you willing to contribute the fix?
+      options:
+        - label: I can submit a PR with the fix.
+        - label: I would like the maintainers to fix this.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow the project's Code of Conduct.
+          required: true

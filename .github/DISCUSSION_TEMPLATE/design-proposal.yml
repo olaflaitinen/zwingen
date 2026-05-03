@@ -1,0 +1,125 @@
+# .github/DISCUSSION_TEMPLATE/design-proposal.yml
+title: "[Design]: "
+labels: ["design", "rfc-pre"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to float a design idea before writing a full RFC.
+        After this discussion converges, the proposal should graduate to an
+        RFC under `docs/governance/rfc-template.md` and a tracking issue.
+
+        Read `GOVERNANCE.md` for the decision process.
+
+  - type: input
+    id: title
+    attributes:
+      label: Working title
+      placeholder: "Conformal Bayesian hybrid intervals as a first-class component"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      multiple: true
+      options:
+        - Public API surface
+        - Numerical contract / tolerances
+        - Estimator specification septuple
+        - Uncertainty / calibration
+        - Causal-inference primitives
+        - Reproducibility receipts / replay
+        - Provenance / SLSA / sigstore
+        - Free-threaded / JIT (experimental)
+        - Documentation / theorem cards
+        - Build / packaging / release engineering
+        - Governance / community
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: |
+        What problem does this solve? Cite use cases, papers, or downstream
+        users. If this is a research-grade methodological change, cite the
+        canonical theorem and the gap in the current API.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: |
+        Sketch the design. For new estimators, include the septuple
+        M = (X, Y, H, l, Omega, A, G) and the guarantees you intend to expose.
+      placeholder: |
+        - Specification: ...
+        - Guarantees: ...
+        - API sketch:
+            class HybridConformalBayes(BaseEstimator):
+                def fit(self, X, y, *, alpha, prior): ...
+                def predict(self, X, return_interval: bool = True): ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: At least one. "Do nothing" is acceptable, with justification.
+    validations:
+      required: true
+
+  - type: textarea
+    id: assumptions
+    attributes:
+      label: New or changed assumptions
+      description: |
+        Which entries in the `zwingen.epistemic` assumption registry would be
+        added, modified, or removed? What falsifier(s) would be attached?
+
+  - type: textarea
+    id: backwards-compat
+    attributes:
+      label: Backwards compatibility
+      description: |
+        Is this a breaking change? If so, propose a deprecation cycle and a
+        migration note under `docs/migrations/`.
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: Test and benchmark plan
+      description: |
+        How will you test correctness, coverage, and performance? List the
+        analytic baselines, property tests, and asv benchmarks you plan to
+        add.
+
+  - type: textarea
+    id: reproducibility
+    attributes:
+      label: Reproducibility impact
+      description: |
+        Does this change the receipt schema? If so, bump
+        `RECEIPT_SCHEMA_VERSION` and document the migration.
+
+  - type: textarea
+    id: open-questions
+    attributes:
+      label: Open questions
+      description: List the things you genuinely do not know yet.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow the project's Code of Conduct.
+          required: true
+        - label: I will graduate this to a formal RFC if the discussion converges.
+          required: true
