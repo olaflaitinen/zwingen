@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21
+        uses: pypa/cibuildwheel@v3.4
         env:
           CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-musllinux_i686 pp*"
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build free-threaded wheels
-        uses: pypa/cibuildwheel@v2.21
+        uses: pypa/cibuildwheel@v3.4
         env:
           CIBW_BUILD: "cp313t-* cp314t-* cp315t-*"
           CIBW_FREE_THREADED_SUPPORT: "1"
@@ -123,7 +123,7 @@ jobs:
         run: ls -la dist/
 
       - name: Sign with sigstore
-        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        uses: sigstore/gh-action-sigstore-python@v3.3.0
         with:
           inputs: dist/*
           release-signing-artifacts: true
