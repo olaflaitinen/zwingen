@@ -32,14 +32,14 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -80,7 +80,7 @@ jobs:
           commit_message: "docs(benchmarks): publish asv report $ github.sha "
 
       - name: Upload raw results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: asv-results-cpu
           path: benchmarks/results
@@ -92,13 +92,13 @@ jobs:
     runs-on: [self-hosted, gpu, cuda12]
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - uses: astral-sh/setup-uv@v3
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -118,7 +118,7 @@ jobs:
           uv run asv publish
 
       - name: Upload GPU results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: asv-results-gpu
           path: benchmarks/results
@@ -130,7 +130,7 @@ jobs:
     needs: [cpu]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: asv-results-cpu
           path: results

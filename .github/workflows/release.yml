@@ -23,7 +23,7 @@ jobs:
       version: $ steps.meta.outputs.version
       previous: $ steps.meta.outputs.previous
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -38,7 +38,7 @@ jobs:
           echo "previous=$PREV" >> $GITHUB_OUTPUT
 
       - uses: astral-sh/setup-uv@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -53,7 +53,7 @@ jobs:
             --output release-notes.md
           cat release-notes.md
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-notes
           path: release-notes.md
@@ -64,11 +64,11 @@ jobs:
     needs: [prepare-notes]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: release-notes
           path: .
@@ -117,7 +117,7 @@ jobs:
       name: zenodo
       url: https://zenodo.org/communities/zwingen
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Trigger Zenodo deposit
         env:
@@ -138,7 +138,7 @@ jobs:
     needs: [github-release, zenodo-doi]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: release-notes
           path: .
