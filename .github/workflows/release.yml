@@ -83,7 +83,7 @@ jobs:
           allowed-conclusions: success
 
       - name: Download dist-signed from publish workflow
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v21
         with:
           workflow: publish.yml
           name: dist-signed

@@ -21,7 +21,7 @@ jobs:
       hashes: $ steps.hash.outputs.hashes
     steps:
       - name: Download dist-signed from publish run
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v21
         with:
           workflow: publish.yml
           run_id: $ github.event.workflow_run.id
